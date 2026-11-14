@@ -26,8 +26,9 @@ function rpcRunner(ok, bad) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
       fetch(EXEC, { method: 'POST', credentials: 'omit', body: JSON.stringify({ kind: 'rpc', fn: name, args: args }) })
-        .then(function (r) { return r.json(); })
-        .then(function (x) { if (x && x.ok) { if (ok) ok(x.r); } else if (bad) bad(new Error((x && (x.error || x.msg)) || '서버 오류')); })
+        .then(function (r) { return r.text(); })
+        .then(function (t) {   // 서버가 돌려준 앱 주소(관리앱·채점앱·현황판 링크)도 바깥 주소로. 센터 PC·문자 연결 설정(bankSetup)은 진짜 주소 그대로
+          var x = JSON.parse(name === 'bankSetup' ? t : t.split(EXEC).join(HERE)); if (x && x.ok) { if (ok) ok(x.r); } else if (bad) bad(new Error((x && (x.error || x.msg)) || '서버 오류')); })
         .catch(function () { if (bad) bad(new Error('')); });   // 이유가 비면 앱(API_ERR)이 '연결 끊김' 안내
     };
   } });
