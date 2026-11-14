@@ -57,7 +57,7 @@ fetch(EXEC + '?' + qs.toString(), { credentials: 'omit' })
     var title = TITLES[new URLSearchParams(location.search).get('p') || ''] || '코칭잉글리쉬';
     var IC = new URLSearchParams(location.search).get('p') === 'admin' ? '-admin' : '';   // 관리앱 = '관리자용' 아이콘·이름 코칭 관리 (사용자 2026-11-14)
     var head = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + title + '</title>' +
-      '<link rel="manifest" href="manifest' + IC + '.json"><link rel="icon" href="icon' + IC + '-32.png"><link rel="apple-touch-icon" href="icon' + IC + '-180.png"><meta name="theme-color" content="#1f2a5c">';
+      '<link rel="manifest" href="manifest' + (IC || (new URLSearchParams(location.search).get('p') === 'lec' ? '-lec' : '')) + '.json"><link rel="icon" href="icon' + IC + '-32.png"><link rel="apple-touch-icon" href="icon' + IC + '-180.png"><meta name="theme-color" content="#1f2a5c">';
     html = /<head>/i.test(html) ? html.replace(/<head>/i, '<head>' + head) : '<!DOCTYPE html><html><head>' + head + '</head><body>' + html + '</body></html>';
     document.open(); document.write(html); document.close();
   })
