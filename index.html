@@ -16,7 +16,7 @@
 var EXEC = 'https://script.google.com/macros/s/AKfycbwhsDB30ymb1nHOWs00DpQA8qTBrxJWJFzJ9EGL0OV_4EnJVAMmL8dx81EL8fNGHG4/exec';
 var HERE = location.origin + location.pathname;
 var TITLES = { lec: '코칭 스터디룸', board: '코칭잉글리쉬 현황판', status: '코칭잉글리쉬 현황판', self: '코칭잉글리쉬 할 일 체크',
-  boss: '코칭잉글리쉬 원장님', tools: '코칭잉글리쉬 분석자료', admin: '코칭 관리', work: '코칭잉글리쉬 근무기록', grade: '코칭잉글리쉬 채점' };
+  boss: '코칭 원장', tools: '코칭 분석', admin: '코칭 관리', work: '코칭 채점쌤', grade: '코칭 채점쌤' };
 
 function rpcRunner(ok, bad) {
   return new Proxy({}, { get: function (t, name) {
@@ -55,7 +55,7 @@ fetch(EXEC + '?' + qs.toString(), { credentials: 'omit' })
     if (html.indexOf('<') < 0) throw new Error('화면이 아님');
     html = html.split(EXEC).join(HERE);   // 앱 이동 줄·새로고침 주소를 바깥 주소로
     var title = TITLES[new URLSearchParams(location.search).get('p') || ''] || '코칭잉글리쉬';
-    var IC = new URLSearchParams(location.search).get('p') === 'admin' ? '-admin' : '';   // 관리앱 = '관리자용' 아이콘·이름 코칭 관리 (사용자 2026-11-14)
+    var IC = ({ admin: '-admin', grade: '-grade', work: '-grade', tools: '-tools', boss: '-boss' })[new URLSearchParams(location.search).get('p') || ''] || '';   // 앱마다 홈 화면 아이콘 (2026-11-14): 관리 ADMIN · 채점쌤(채점+근무) · 분석 · 원장 · 스터디룸
     var head = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + title + '</title>' +
       '<link rel="manifest" href="manifest' + (IC || (new URLSearchParams(location.search).get('p') === 'lec' ? '-lec' : '')) + '.json"><link rel="icon" href="icon' + IC + '-32.png"><link rel="apple-touch-icon" href="icon' + IC + '-180.png"><meta name="theme-color" content="#1f2a5c">';
     html = /<head>/i.test(html) ? html.replace(/<head>/i, '<head>' + head) : '<!DOCTYPE html><html><head>' + head + '</head><body>' + html + '</body></html>';
