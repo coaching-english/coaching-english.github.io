@@ -1,6 +1,23 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>코칭 스터디룸</title>
-<meta http-equiv="refresh" content="0;url=../?p=lec">
-<script>location.replace('../?p=lec');</script>
-</head><body style="font-family:sans-serif;text-align:center;padding:40px 16px">코칭 스터디룸으로 이동합니다… <a href="../?p=lec">바로 가기</a></body></html>
+<script>
+/* 짧은 주소 → 코칭 스터디룸 (2026-11-16). 카카오톡 안(인앱 브라우저)에서 열면 카카오톡의 '외부 브라우저로 열기'로 넘김 */
+(function(){
+  var target = 'https://coaching-english.github.io/?p=lec';
+  var ua = navigator.userAgent || '';
+  if (/KAKAOTALK/i.test(ua)) {
+    location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(target);
+    window.KAKAO_EXT = true;
+  } else {
+    location.replace(target);
+  }
+})();
+</script>
+</head>
+<body style="font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;text-align:center;padding:48px 20px;color:#23272a;background:#f6f4ee">
+<div style="font-size:18px;font-weight:700">코칭 스터디룸으로 이동합니다…</div>
+<div id="k" style="display:none;margin-top:14px;font-size:15px;line-height:1.6;color:#555">인터넷 브라우저(크롬·사파리)에서 열렸습니다.<br>열리지 않았다면 아래 버튼을 눌러 주십시오.</div>
+<p style="margin-top:22px"><a href="https://coaching-english.github.io/?p=lec" style="display:inline-block;background:#1f3a2c;color:#fff;border-radius:12px;padding:14px 22px;font-weight:700;text-decoration:none">코칭 스터디룸 열기</a></p>
+<script>if (window.KAKAO_EXT) document.getElementById('k').style.display = '';</script>
+</body></html>
