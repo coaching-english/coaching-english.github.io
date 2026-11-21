@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>코칭잉글리쉬</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-32.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#1f2a5c">
-<style>body{font-family:sans-serif;color:#202124;background:#f5f6fa;padding:40px 16px;text-align:center}</style>
+<style>body{font-family:sans-serif;color:#202124;background:#f5f6fa;padding:40px 16px;text-align:center}
+#wb{max-width:320px;height:8px;margin:12px auto 0;background:#e8eaed;border-radius:4px;overflow:hidden}#wb i{display:block;height:100%;width:0;background:#1a73e8;transition:width .25s linear}#wl{color:#1a73e8;font-weight:700;font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
-<p id="msg">불러오는 중…</p>
+<p id="msg">불러오는 중… <span id="wl"></span></p><div id="wb"><i></i></div>
 <script>
 /* 코칭잉글리쉬 바깥 주소 — Code.js [63] (99C 바깥주소와 같은 방식).
    구글 계정 정보 없이(credentials omit) 웹앱 화면을 받아 띄우고, google.script.run · url · history 를 대신 만든다.
@@ -48,6 +49,19 @@ window.google = { script: {
   host: { close: function () {}, setHeight: function () {}, setWidth: function () {}, editor: {} }
 } };
 
+/* ⏳ 화면 받는 동안 남은 시간 (2026-11-21) — 이 기기에서 지난 5번 걸린 시간 평균으로 어림 (localStorage outWait) */
+var W_T0 = Date.now(), W_EST = 6;
+try { var W_A = JSON.parse(localStorage.getItem('outWait') || '[]'); if (W_A.length) W_EST = Math.max(1, W_A.reduce(function (a, b) { return a + b; }, 0) / W_A.length); } catch (e) {}
+var W_IV = setInterval(function () {
+  var s = (Date.now() - W_T0) / 1000, left = Math.ceil(W_EST - s), l = document.getElementById('wl'), b = document.querySelector('#wb i');
+  if (!l || !b) return;
+  l.textContent = left > 0 ? '약 ' + left + '초 남음' : s < W_EST * 2 ? '거의 다 됐어요…' : '조금 더 걸리고 있어요… (' + Math.round(s) + '초)';
+  b.style.width = (s < W_EST ? s / W_EST * 90 : 90 + 9 * (1 - Math.exp(-(s - W_EST) / W_EST))).toFixed(1) + '%';
+}, 250);
+function wDone(ok) {
+  clearInterval(W_IV); var s = (Date.now() - W_T0) / 1000;
+  if (ok && s < 60) try { var a = JSON.parse(localStorage.getItem('outWait') || '[]'); a.push(Math.round(s * 10) / 10); localStorage.setItem('outWait', JSON.stringify(a.slice(-5))); } catch (e) {}
+}
 var qs = new URLSearchParams(location.search); qs.set('raw', '1');
 fetch(EXEC + '?' + qs.toString(), { credentials: 'omit' })
   .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
@@ -59,9 +73,11 @@ fetch(EXEC + '?' + qs.toString(), { credentials: 'omit' })
     var head = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>' + title + '</title>' +
       '<link rel="manifest" href="manifest' + (IC || (new URLSearchParams(location.search).get('p') === 'lec' ? '-lec' : '')) + '.json"><link rel="icon" href="icon' + IC + '-32.png"><link rel="apple-touch-icon" href="icon' + IC + '-180.png"><meta name="theme-color" content="#1f2a5c">';
     html = /<head>/i.test(html) ? html.replace(/<head>/i, '<head>' + head) : '<!DOCTYPE html><html><head>' + head + '</head><body>' + html + '</body></html>';
+    wDone(true);
     document.open(); document.write(html); document.close();
   })
   .catch(function (e) {
+    wDone(false); var wb = document.getElementById('wb'); if (wb) wb.style.display = 'none';
     document.getElementById('msg').textContent = '화면을 불러오지 못했어요 (' + e.message + '). 인터넷 연결을 확인하고 새로고침해 주세요.';
   });
 </script>
