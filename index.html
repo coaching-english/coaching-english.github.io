@@ -6,11 +6,10 @@
 <title>코칭잉글리쉬</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-32.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#1f2a5c">
 <style>body{font-family:sans-serif;color:#202124;background:#f5f6fa;padding:40px 16px;text-align:center}
-.tmr{display:inline-block;padding:12px;border-radius:34px;background:linear-gradient(145deg,#fff,#e9ebe6);box-shadow:0 6px 18px rgba(0,0,0,.14)}.tmr .scr{width:168px;height:168px;border-radius:26px;background:radial-gradient(circle at 50% 40%,#1b1d22,#050506 70%)}.tmr svg{display:block;width:100%;height:100%}.dg{font-family:'Orbitron',ui-monospace,monospace;font-weight:600}.tmr.ov .num{animation:bl 1s steps(2) infinite}@keyframes bl{50%{opacity:.35}}#msg{color:#5f6368}</style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap">
+#wb{max-width:320px;height:8px;margin:12px auto 0;background:#e8eaed;border-radius:4px;overflow:hidden}#wb i{display:block;height:100%;width:0;background:#1a73e8;transition:width .25s linear}#wl{color:#1a73e8;font-weight:700;font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
-<div class="tmr" id="tm"><div class="scr" id="tsc"></div></div><p id="msg">코칭잉글리쉬 불러오는 중…</p>
+<p id="msg">불러오는 중… <span id="wl"></span></p><div id="wb"><i></i></div>
 <script>
 /* 코칭잉글리쉬 바깥 주소 — Code.js [63] (99C 바깥주소와 같은 방식).
    구글 계정 정보 없이(credentials omit) 웹앱 화면을 받아 띄우고, google.script.run · url · history 를 대신 만든다.
@@ -53,27 +52,12 @@ window.google = { script: {
 /* ⏳ 화면 받는 동안 남은 시간 (2026-11-21) — 이 기기에서 지난 5번 걸린 시간 평균으로 어림 (localStorage outWait) */
 var W_T0 = Date.now(), W_EST = 6;
 try { var W_A = JSON.parse(localStorage.getItem('outWait') || '[]'); if (W_A.length) W_EST = Math.max(1, W_A.reduce(function (a, b) { return a + b; }, 0) / W_A.length); } catch (e) {}
-(function () {                                                        // 타이머 모양 — 강의.html waitFace와 같음
-  var t = '', D = Math.max(4, Math.ceil(W_EST));
-  for (var i = 0; i < 60; i++) { var a = i * Math.PI / 30;
-    t += '<line data-i="' + i + '" x1="' + (100 + 70 * Math.sin(a)).toFixed(1) + '" y1="' + (100 - 70 * Math.cos(a)).toFixed(1) + '" x2="' + (100 + 82 * Math.sin(a)).toFixed(1) + '" y2="' + (100 - 82 * Math.cos(a)).toFixed(1) + '" stroke="#2a2d33" stroke-width="' + (i % 5 ? 3 : 4.5) + '" stroke-linecap="round"/>'; }
-  for (var k = 0; k < 4; k++) { var b = k * Math.PI / 2;
-    t += '<text x="' + (100 + 92 * Math.sin(b)).toFixed(1) + '" y="' + (103 - 92 * Math.cos(b)).toFixed(1) + '" text-anchor="middle" font-size="9" fill="#6b7078" class="dg">' + Math.round(D * k / 4) + '</text>'; }
-  document.getElementById('tsc').innerHTML = '<svg viewBox="0 0 200 200">' + t + '<text x="100" y="78" text-anchor="middle" font-size="10" fill="#8a8f98" id="tst">남은 시간</text>' +
-    '<text x="100" y="116" text-anchor="middle" font-size="36" fill="#eceef4" class="dg num" id="tnum">0:00</text><text x="100" y="138" text-anchor="middle" font-size="10" fill="#9b8cf0" id="tlb"></text></svg>';
-})();
-function wPaint() {
-  var s = (Date.now() - W_T0) / 1000, rem = Math.max(0, W_EST - s), over = rem <= 0, D = Math.max(4, Math.ceil(W_EST)), lit = Math.ceil(rem / D * 60), spin = Math.floor(s * 6) % 60;
-  var col = rem > W_EST * .5 ? '#9b8cf0' : rem > W_EST * .2 ? '#f2b35b' : '#ef6b6b';
-  [].forEach.call(document.querySelectorAll('#tsc line'), function (l) { var i = +l.getAttribute('data-i');
-    l.setAttribute('stroke', over ? (i === spin || i === (spin + 59) % 60 ? '#9b8cf0' : '#2a2d33') : i < lit ? col : '#2a2d33'); });
-  var sec = over ? 0 : Math.ceil(rem);
-  document.getElementById('tnum').textContent = Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2);
-  document.getElementById('tst').textContent = over ? '조금만 더' : '남은 시간';
-  document.getElementById('tlb').textContent = over ? (s < W_EST * 2 ? '거의 다 됐어요' : '조금 더 걸리고 있어요 · ' + Math.round(s) + '초') : '약 ' + Math.ceil(rem) + '초';
-  document.getElementById('tm').classList.toggle('ov', over);
-}
-wPaint(); var W_IV = setInterval(wPaint, 250);
+var W_IV = setInterval(function () {
+  var s = (Date.now() - W_T0) / 1000, left = Math.ceil(W_EST - s), l = document.getElementById('wl'), b = document.querySelector('#wb i');
+  if (!l || !b) return;
+  l.textContent = left > 0 ? '약 ' + left + '초 남음' : s < W_EST * 2 ? '거의 다 됐어요…' : '조금 더 걸리고 있어요… (' + Math.round(s) + '초)';
+  b.style.width = (s < W_EST ? s / W_EST * 90 : 90 + 9 * (1 - Math.exp(-(s - W_EST) / W_EST))).toFixed(1) + '%';
+}, 250);
 function wDone(ok) {
   clearInterval(W_IV); var s = (Date.now() - W_T0) / 1000;
   if (ok && s < 60) try { var a = JSON.parse(localStorage.getItem('outWait') || '[]'); a.push(Math.round(s * 10) / 10); localStorage.setItem('outWait', JSON.stringify(a.slice(-5))); } catch (e) {}
@@ -93,7 +77,7 @@ fetch(EXEC + '?' + qs.toString(), { credentials: 'omit' })
     document.open(); document.write(html); document.close();
   })
   .catch(function (e) {
-    wDone(false); var tm = document.getElementById('tm'); if (tm) tm.style.display = 'none';
+    wDone(false); var wb = document.getElementById('wb'); if (wb) wb.style.display = 'none';
     document.getElementById('msg').textContent = '화면을 불러오지 못했어요 (' + e.message + '). 인터넷 연결을 확인하고 새로고침해 주세요.';
   });
 </script>
